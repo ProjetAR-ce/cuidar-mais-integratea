@@ -4,6 +4,7 @@ Aplicativo Android/iOS para **responsáveis** acompanharem o cuidado da criança
 
 **📱 Baixar o APK:** [Releases](https://github.com/ProjetAR-ce/cuidar-mais-integratea/releases/latest)
 **Login de demonstração:** `responsavel@cuidarmais.demo` · senha `Cuidar+2026` (dados fictícios)
+**Telas:** [prints em alta resolução](../docs/app/telas) e [guia das telas em PDF](../docs/app/Cuidar+_App_das_Familias_Telas.pdf)
 
 ## Telas
 

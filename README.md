@@ -7,6 +7,8 @@ Solução desenvolvida no **Hackathon BNB – Desafio Prefeitura de Crateús** (
 **🌐 Sistema em produção: [cuidarmais.projetarsolucoes.com](https://cuidarmais.projetarsolucoes.com)**  
 **📱 App das famílias (Android): [baixar o APK em Releases](https://github.com/ProjetAR-ce/cuidar-mais-integratea/releases/latest)**
 
+**📄 Documento técnico-funcional (PDF):** [docs/Cuidar+_Guia_do_Sistema_IntegraTEA.pdf](docs/Cuidar+_Guia_do_Sistema_IntegraTEA.pdf) · **Telas do app:** [docs/app/](docs/app)
+
 > Todos os dados deste repositório e do ambiente de demonstração são **fictícios** (RN-014).
 
 ---
@@ -209,7 +211,7 @@ Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta
 ├── mobile/              app das famílias (Flutter · Android/iOS)
 ├── supabase/migrations/ esquema, RLS, triggers, RPCs, alertas e indicadores
 ├── bot/                 assistente de WhatsApp (Strands + AWS)
-└── docs/                plano, conformidade com o edital, LGPD, API, pitch, fichas de demonstração e referências
+└── docs/                documento técnico-funcional (PDF), telas do app, plano, conformidade, LGPD, API, pitch, fichas de demonstração e referências
 ```
 
 ## Equipe

@@ -41,8 +41,27 @@ class JourneyEvent {
         return 'Continuidade do cuidado';
       case 'alerta':
         return 'Alerta';
+      case 'atendimento':
+        return 'Atendimento';
       default:
-        return eventType;
+        return _humanize(eventType);
     }
+  }
+
+  /// Tipos gravados pelo sistema web (ex.: `atendimento_realizado`) viram texto legível.
+  static String _humanize(String type) {
+    const known = {
+      'atendimento_realizado': 'Atendimento realizado',
+      'agendamento': 'Agendamento',
+      'confirmacao_familia': 'Presença confirmada',
+      'falta': 'Falta registrada',
+      'encaminhamento': 'Encaminhamento',
+      'triagem': 'Triagem',
+      'cadastro': 'Cadastro',
+      'plano_cuidado': 'Plano de cuidado',
+      'nota': 'Anotação da equipe',
+    };
+    final t = known[type] ?? type.replaceAll('_', ' ');
+    return t.isEmpty ? 'Registro' : t[0].toUpperCase() + t.substring(1);
   }
 }
