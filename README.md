@@ -26,6 +26,17 @@ Uma plataforma de **coordenação do cuidado** (não é prontuário hospitalar) 
 | **Assistente de WhatsApp** (Python · AWS Strands · Bedrock) | [`bot/`](bot) | população em geral |
 | **Banco, regras e segurança** (Supabase/PostgreSQL) | [`supabase/`](supabase) | tudo acima |
 
+### ✨ Destaque: da ficha em papel para o digital em segundos
+
+Hoje as fichas da rede são **em papel**. No Cuidar+, basta **fotografar a ficha com o celular**:
+
+1. **Foto ou PDF** da ficha (NASF A.1, anamneses e fichas do NAPE) em *Pacientes → Digitalizar ficha em papel*.
+2. **Leitura por IA** (Claude com visão, saída estruturada) em cerca de 20 segundos: nome, nascimento, mãe, CNS, CPF, endereço, responsável, escola e H.D.
+3. **Tela de revisão lado a lado com a foto:** campos duvidosos ficam em amarelo, e CNS/CPF/datas são conferidos automaticamente.
+4. **Salvar só após conferência humana**, com a mesma checagem de duplicidade do cadastro manual. A origem fica registrada na linha do tempo, a **foto não é armazenada** e a recepção não recebe a hipótese diagnóstica.
+
+Para testar: imprima ou envie [`docs/demonstracao/ficha-nasf-preenchida.pdf`](docs/demonstracao/ficha-nasf-preenchida.pdf), ou preencha à mão a [ficha em branco](docs/demonstracao/ficha-nasf-em-branco.pdf).
+
 ### As 4 necessidades do edital
 
 | Necessidade (edital, item 3) | Como o Cuidar+ resolve |
@@ -144,13 +155,15 @@ Senha de todas: **`Cuidar+2026`**
 
 Paciente-vitrine com jornada em 4 serviços: **Lucas Ferreira da Silva**.
 
+Para a digitalização, use um perfil que cadastra (recepção, profissional, coordenação ou admin) e a ficha simulada de [`docs/demonstracao/`](docs/demonstracao). A leitura exige `ANTHROPIC_API_KEY` configurada no servidor.
+
 ### 4. Testes
 
 ```bash
 cd web
 npm run typecheck && npx eslint src
 npm run dev -- -p 3100            # em outro terminal
-npm run test:e2e                  # CA-01 a CA-10 + acessibilidade + celular
+npm run test:e2e                  # CA-01 a CA-10, digitalização de fichas, acessibilidade e celular
 
 cd ../bot && python -m unittest discover -s tests -v
 
@@ -181,6 +194,7 @@ Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta
 | CA-08 | Bloquear acesso incompatível com o perfil | ✅ |
 | CA-09 | Auditoria das ações sensíveis | ✅ |
 | CA-10 | Desktop e celular com navegação por teclado | ✅ `e2e/responsivo.spec.ts` |
+| Extra | Digitalizar ficha em papel: acesso por perfil e acessibilidade | ✅ `e2e/aceite.spec.ts` |
 
 ## Estrutura do repositório
 
@@ -189,13 +203,13 @@ Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta
 ├── web/                 Sistema web Cuidar+ (Next.js)
 │   ├── src/app/         telas (App Router) e API pública /api/v1
 │   ├── src/components/  design system e componentes de cuidado
-│   ├── src/lib/         Supabase, autenticação, permissões, Server Actions
+│   ├── src/lib/         Supabase, autenticação, permissões, Server Actions (inclui leitura de fichas por IA)
 │   ├── scripts/seed.ts  dados fictícios
 │   └── e2e/             testes de aceite e acessibilidade
 ├── mobile/              app das famílias (Flutter · Android/iOS)
 ├── supabase/migrations/ esquema, RLS, triggers, RPCs, alertas e indicadores
 ├── bot/                 assistente de WhatsApp (Strands + AWS)
-└── docs/                plano, conformidade com o edital, LGPD, API, pitch e referências
+└── docs/                plano, conformidade com o edital, LGPD, API, pitch, fichas de demonstração e referências
 ```
 
 ## Equipe
