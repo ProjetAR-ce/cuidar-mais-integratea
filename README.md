@@ -4,7 +4,8 @@
 
 Solução desenvolvida no **Hackathon BNB – Desafio Prefeitura de Crateús** (Fórum de Inovação e Tecnologia · UFC Campus Crateús · 16 e 17/09/2026), para o tema proposto pela Secretaria Municipal de Saúde e pela SEPLATI.
 
-**🌐 Sistema em produção: [cuidarmais.projetarsolucoes.com](https://cuidarmais.projetarsolucoes.com)**
+**🌐 Sistema em produção: [cuidarmais.projetarsolucoes.com](https://cuidarmais.projetarsolucoes.com)**  
+**📱 App das famílias (Android): [baixar o APK em Releases](https://github.com/ProjetAR-ce/cuidar-mais-integratea/releases/latest)**
 
 > Todos os dados deste repositório e do ambiente de demonstração são **fictícios** (RN-014).
 
@@ -21,7 +22,7 @@ Uma plataforma de **coordenação do cuidado** (não é prontuário hospitalar) 
 | Parte | Pasta | Para quem |
 |---|---|---|
 | **Sistema web Cuidar+** (Next.js) | [`web/`](web) | recepção, profissionais, coordenação, gestão e administração dos 5 serviços |
-| **Aplicativo mobile** (Flutter, repositório da equipe) | [JoaoAugusto1374/IntegraTEA](https://github.com/JoaoAugusto1374/IntegraTEA) | famílias e responsáveis: jornada, fila, consultas, plano, encaminhamentos, avisos e notícias |
+| **Aplicativo mobile** (Flutter) | [`mobile/`](mobile) | famílias e responsáveis: jornada, fila, consultas, plano, encaminhamentos, avisos e notícias |
 | **Assistente de WhatsApp** (Python · AWS Strands · Bedrock) | [`bot/`](bot) | população em geral |
 | **Banco, regras e segurança** (Supabase/PostgreSQL) | [`supabase/`](supabase) | tudo acima |
 
@@ -95,8 +96,9 @@ Detalhes: [docs/PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) · [doc
 
 **Web:** Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 4, Radix UI, Motion, Recharts, Zod, Sonner, cmdk.
 **Dados:** Supabase (PostgreSQL 17, Auth, RLS), pg_trgm e unaccent.
+**App:** Flutter 3.44, Dart, supabase_flutter.
 **Bot:** Python 3.12, Strands Agents, Amazon Bedrock, AWS Lambda, SQS, DynamoDB (SAM).
-**Qualidade:** Playwright + axe-core (WCAG 2.2 AA), ESLint (regras do React Compiler), testes SQL em PGlite e unittest no bot.
+**Qualidade:** Playwright + axe-core (WCAG 2.2 AA), ESLint (regras do React Compiler), testes SQL em PGlite e unittest no bot e testes do app em Flutter.
 
 ---
 
@@ -110,6 +112,7 @@ No SQL Editor do projeto, rode **na ordem**:
 2. `supabase/migrations/20260916_002_ajustes_fase3.sql`
 3. `supabase/migrations/20260917_003_edital_api_publica.sql`
 4. `supabase/migrations/20260917_004_app_familias.sql`
+5. `supabase/migrations/20260917_005_confirmacao_familia.sql`
 
 Todas são idempotentes. Veja [supabase/README.md](supabase/README.md).
 
@@ -148,9 +151,15 @@ npm run dev -- -p 3100            # em outro terminal
 npm run test:e2e                  # CA-01 a CA-10 + acessibilidade + celular
 
 cd ../bot && python -m unittest discover -s tests -v
+
+cd ../mobile && flutter test
 ```
 
-### 5. Assistente de WhatsApp
+### 5. App das famílias (Flutter)
+
+Instale o APK de [Releases](https://github.com/ProjetAR-ce/cuidar-mais-integratea/releases/latest) e entre com `responsavel@cuidarmais.demo`. Para compilar, veja [mobile/README.md](mobile/README.md).
+
+### 6. Assistente de WhatsApp
 
 Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta Cloud API).
 
@@ -181,6 +190,7 @@ Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta
 │   ├── src/lib/         Supabase, autenticação, permissões, Server Actions
 │   ├── scripts/seed.ts  dados fictícios
 │   └── e2e/             testes de aceite e acessibilidade
+├── mobile/              app das famílias (Flutter · Android/iOS)
 ├── supabase/migrations/ esquema, RLS, triggers, RPCs, alertas e indicadores
 ├── bot/                 assistente de WhatsApp (Strands + AWS)
 └── docs/                plano, conformidade com o edital, LGPD, API, pitch e referências

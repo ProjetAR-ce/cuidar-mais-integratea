@@ -12,7 +12,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 |---|---|---|
 | 7.1 Solução original, feita durante o hackathon | ✅ | Histórico de commits de 16 e 17/09/2026; todo o código neste repositório |
 | 7.2 Protótipo funcional ou simulação de alta fidelidade | ✅ | Sistema web completo em funcionamento, banco real (Supabase), API e bot |
-| 7.3 Código-fonte, documentos técnicos e materiais disponibilizados | ✅ | `web/`, `supabase/`, `bot/`, `docs/` |
+| 7.3 Código-fonte, documentos técnicos e materiais disponibilizados | ✅ | `web/`, `mobile/`, `supabase/`, `bot/`, `docs/` e APK em Releases |
 | 7.4 Uso de frameworks, APIs e IA | ✅ | Next.js, Supabase, AWS Strands/Bedrock; IA usada como apoio ao desenvolvimento |
 | 7.5 Pitch de até 7 minutos | ✅ | Roteiro em [PITCH.md](PITCH.md) |
 
@@ -71,6 +71,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 
 - [x] README com problema, solução, arquitetura, como rodar, contas de demonstração e critérios de aceite
 - [x] Código do sistema web (`web/`)
+- [x] Código do app das famílias (`mobile/`) e APK publicado em Releases
 - [x] Scripts SQL versionados e idempotentes (`supabase/migrations/`)
 - [x] Script de dados fictícios (`web/scripts/seed.ts`)
 - [x] Assistente de WhatsApp (`bot/`) integrado à API pública
@@ -81,4 +82,3 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 - [x] Nomes da equipe no README
 - [x] Sistema publicado em https://cuidarmais.projetarsolucoes.com
 - [ ] Link do vídeo/demonstração, se a organização pedir
-- [ ] Trocar as chaves do Supabase compartilhadas em conversa antes de publicar o repositório

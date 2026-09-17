@@ -318,7 +318,7 @@ Ordem pensada para ter algo **demonstrável o quanto antes**. Cada fase fecha cr
 
 ### Fase 0 — Preparação
 - [ ] Combinar com o time do mobile as migrações da seção 1.3
-- [ ] Trocar as chaves compartilhadas no WhatsApp (ver seção 10)
+- [ ] Revisar as chaves de acesso do Supabase (ver seção 10)
 - [ ] Conferir no painel do Supabase: RLS, políticas, triggers e se `profiles.id` referencia `auth.users`
 - [ ] `git init`, repositório, projeto na Vercel, `.env.local` / `.env.example`
 
@@ -373,12 +373,12 @@ Formulários configuráveis (RF-020), API `/api/v1` documentada em OpenAPI (RF-0
 
 ---
 
-## 10. Segurança das chaves ⚠️
+## 10. Segurança das chaves
 
-A chave `service_role` (JWT) e a `sb_secret_*` foram compartilhadas no WhatsApp. Elas **ignoram todo o RLS** e dão acesso total ao banco.
+A chave `service_role` (JWT) e a `sb_secret_*` **ignoram todo o RLS** e dão acesso total ao banco.
 
-- Não colocar em repositório, print, documento nem variável `NEXT_PUBLIC_`.
-- **Gerar novas chaves** no painel do Supabase (Settings → API) antes de carregar dados, mesmo que fictícios.
+- Não colocar em repositório, print, documento, app mobile nem variável `NEXT_PUBLIC_`.
+- **Rotacionar as chaves** no painel do Supabase (Settings → API) antes de qualquer uso com dados reais.
 - `.env.local` (fora do git):
 
 ```env

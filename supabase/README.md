@@ -12,6 +12,7 @@ Supabase → SQL Editor → colar o arquivo → Run.
 | `20260916_002_ajustes_fase3.sql` | Indicadores no fuso de Crateús; nomes dos serviços no fluxo de encaminhamentos; versão do atendimento só em correções |
 | `20260917_003_edital_api_publica.sql` | Campos das fichas NASF/NAPE; informação clínica separada; `create_patient` atualizado; base pública do WhatsApp; visão agregada para a API |
 | `20260917_004_app_familias.sql` | App das famílias: agenda visível ao responsável, **notificações automáticas** (consulta agendada/cancelada, encaminhamento, entrada na fila) e avisos/notícias |
+| `20260917_005_confirmacao_familia.sql` | Família confirma presença pelo app (`confirm_appointment_attendance`), com registro na jornada e na auditoria |
 
 ## Dados de demonstração
 
