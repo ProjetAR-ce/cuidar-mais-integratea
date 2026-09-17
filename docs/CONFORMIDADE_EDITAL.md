@@ -20,7 +20,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 
 | Critério | Como o projeto responde | Onde ver |
 |---|---|---|
-| **Inovação e criatividade** | Fila **explicável** (cada posição mostra o cálculo); detecção de duplicidade por semelhança; 6 alertas automáticos de cuidado fragmentado; linha do tempo gerada por triggers; assistente de WhatsApp que só usa dados agregados | `/fila`, `/alertas`, `/duplicidades`, `bot/` |
+| **Inovação e criatividade** | **Digitalização de fichas em papel por foto** com IA e revisão humana lado a lado; fila **explicável** (cada posição mostra o cálculo); detecção de duplicidade por semelhança; 6 alertas automáticos de cuidado fragmentado; linha do tempo gerada por triggers; assistente de WhatsApp que só usa dados agregados | `/fila`, `/alertas`, `/duplicidades`, `bot/` |
 | **Aplicabilidade e relevância** | Construído sobre as fichas reais do NASF e do NAPE (Anexo A) e sobre os 5 serviços citados; parâmetros da rede editáveis sem código (D-03, D-04) | `/pacientes/novo`, `/admin?aba=parametros` |
 | **Usabilidade e design** | Design system com a marca Cuidar+; busca Ctrl+K; ações em 1 toque; celebrações discretas; responsivo a partir de 320px; WCAG 2.2 AA testado com axe | `/styleguide`, `e2e/` |
 | **Qualidade técnica, funcionamento e LGPD** | TypeScript estrito, lint do React Compiler, build de produção, testes E2E dos 10 critérios de aceite, SQL testado em PGlite, RLS por perfil, auditoria imutável, minimização e separação do dado clínico | [LGPD.md](LGPD.md), `supabase/migrations/` |
@@ -50,7 +50,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 
 | Requisito | Situação |
 |---|---|
-| Cadastro único evitando duplicidade | ✅ |
+| Cadastro único evitando duplicidade | ✅ inclusive fichas digitalizadas por foto, que passam pela mesma checagem (`/pacientes/digitalizar`) |
 | Fila visível e priorizável por serviço | ✅ |
 | Linha do tempo por paciente | ✅ |
 | Comparecimento/falta em cada atendimento | ✅ |
@@ -72,6 +72,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 - [x] README com problema, solução, arquitetura, como rodar, contas de demonstração e critérios de aceite
 - [x] Código do sistema web (`web/`)
 - [x] Código do app das famílias (`mobile/`) e APK publicado em Releases
+- [x] Fichas simuladas (preenchida e em branco) para demonstrar a digitalização (`docs/demonstracao/`)
 - [x] Scripts SQL versionados e idempotentes (`supabase/migrations/`)
 - [x] Script de dados fictícios (`web/scripts/seed.ts`)
 - [x] Assistente de WhatsApp (`bot/`) integrado à API pública

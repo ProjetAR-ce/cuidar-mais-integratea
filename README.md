@@ -43,6 +43,7 @@ Mapa completo requisito por requisito: **[docs/CONFORMIDADE_EDITAL.md](docs/CONF
 
 - **Início por perfil:** indicadores, jornada do cuidado, próximos atendimentos, alertas, rede de serviços e metas do dia.
 - **Pacientes:** busca tolerante a erros (CNS, CPF, nome, mãe, responsável), cadastro em 3 etapas com verificação de duplicidade em tempo real, ficha completa, informação clínica protegida, linha do tempo, plano, agenda, encaminhamentos e alertas.
+- **Digitalização de fichas em papel:** fotografe a ficha (NASF/NAPE) com o celular. A IA lê os campos, marca o que ficou duvidoso e abre uma **tela de revisão lado a lado com a foto**. Nada é salvo sem conferência humana, a checagem de duplicidade continua valendo e a foto não é armazenada. Ficha simulada para teste em [`docs/demonstracao/`](docs/demonstracao).
 - **Triagem:** necessidade, especialidade, prioridade com **justificativa obrigatória** e entrada automática na fila.
 - **Fila:** posição explicável, métricas, capacidade, agendar, mudar prioridade (com justificativa), concluir e cancelar (com motivo).
 - **Agenda:** dia e semana, presença em um toque, falta justificada ou não, reagendar, cancelar e registrar a sessão.
@@ -95,6 +96,7 @@ Detalhes: [docs/PLANO_DESENVOLVIMENTO.md](docs/PLANO_DESENVOLVIMENTO.md) · [doc
 ## Stack
 
 **Web:** Next.js 16 (App Router, Turbopack), React 19, TypeScript, Tailwind CSS 4, Radix UI, Motion, Recharts, Zod, Sonner, cmdk.
+**IA:** Claude (Anthropic) com visão para ler fichas em papel, com saída estruturada e revisão humana obrigatória.
 **Dados:** Supabase (PostgreSQL 17, Auth, RLS), pg_trgm e unaccent.
 **App:** Flutter 3.44, Dart, supabase_flutter.
 **Bot:** Python 3.12, Strands Agents, Amazon Bedrock, AWS Lambda, SQS, DynamoDB (SAM).
@@ -120,7 +122,7 @@ Todas são idempotentes. Veja [supabase/README.md](supabase/README.md).
 
 ```bash
 cd web
-cp .env.example .env.local      # preencha URL, chave publicável, chave secreta e INTEGRATEA_API_KEY
+cp .env.example .env.local      # preencha URL, chave publicável, chave secreta, INTEGRATEA_API_KEY e ANTHROPIC_API_KEY (leitura de fichas)
 npm install
 npm run seed                    # dados fictícios: 30 usuários, ~160 pacientes, ~1.500 atendimentos
 npm run dev                     # http://localhost:3000

@@ -22,6 +22,8 @@
 5. **Coordenação:** alertas automáticos, com **sobreposição** e **3 faltas seguidas**, revisados com registro; **unificação de cadastro duplicado**. *(40 s)*
 6. **Gestão:** **capacidade × demanda**, com o gargalo de Neuropediatria destacado, e indicadores exportáveis **só com dados agregados**. *(20 s)*
 
+> **Momento "uau" opcional (30 s, pode substituir parte do item 6):** em *Pacientes → Digitalizar ficha em papel*, fotografe com o celular a **ficha impressa** (`docs/demonstracao/ficha-nasf-preenchida.pdf`) ou uma **ficha em branco preenchida à mão na hora** pela banca. Em cerca de 20 s os campos aparecem ao lado da foto, com os duvidosos em amarelo. Mostre que o CNS precisa ser conferido e que nada é salvo sem clicar em *Confirmar e salvar*. **Não salve a ficha preenchida impressa antes do pitch:** depois de salva, o CNS dela passa a acusar duplicidade (o que também serve de demonstração).
+
 ## 5:15 – 6:00 · Confiança e LGPD
 
 - Recepção tenta abrir a auditoria → **acesso negado**, e o admin vê a tentativa registrada.
@@ -47,3 +49,4 @@
 - [ ] Rodar `npm run seed -- --force` só se precisar de mais dados (não é necessário)
 - [ ] Zoom do navegador em 110% para legibilidade no Meet
 - [ ] Plano B: vídeo gravado da demonstração
+- [ ] Ficha preenchida impressa e uma ficha em branco com caneta azul; testar a câmera do celular logado como profissional

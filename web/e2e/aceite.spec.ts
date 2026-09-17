@@ -21,6 +21,24 @@ test.describe("Critérios de aceite do MVP", () => {
     await expect(page.getByRole("button", { name: /Continuar/ })).toBeDisabled();
   });
 
+  test("Digitalização de ficha em papel · acesso, atalho e acessibilidade", async ({ page }) => {
+    await login(page, "recepcao");
+    await page.goto("/pacientes");
+    await page.getByRole("link", { name: /Digitalizar ficha em papel/ }).click();
+    await expect(page).toHaveURL(/\/pacientes\/digitalizar/);
+    await expect(page.getByRole("heading", { name: "Digitalizar ficha" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Tirar foto", exact: true })).toBeVisible();
+    await expect(page.getByLabel("Escolher arquivo da ficha")).toBeAttached();
+    await expect(page.getByText("Foto não é guardada")).toBeVisible();
+    await expectAccessible(page, "digitalizar ficha");
+  });
+
+  test("Digitalização de ficha · gestão não acessa", async ({ page }) => {
+    await login(page, "gestao");
+    await page.goto("/pacientes/digitalizar");
+    await expect(page).toHaveURL(/sem-acesso/);
+  });
+
   test("CA-02 · fila priorizada e explicável", async ({ page }) => {
     await login(page, "profissional");
     await page.goto("/fila");

@@ -1,7 +1,9 @@
 import Link from "next/link";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, ScanLine } from "lucide-react";
 import { PageHeader, Card, Avatar } from "@/components/ui/primitives";
 import { requirePermission } from "@/lib/auth/session";
+import { can } from "@/lib/auth/permissions";
+import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/server";
 import { age, fmtDate, fromNow } from "@/lib/format";
 import { PatientSearch } from "./patient-search";
@@ -9,7 +11,7 @@ import { PatientSearch } from "./patient-search";
 export const metadata = { title: "Pacientes" };
 
 export default async function PacientesPage() {
-  await requirePermission("patients.read");
+  const profile = await requirePermission("patients.read");
   const supabase = await createClient();
   const [{ data: recent }, { count }] = await Promise.all([
     supabase.from("patients").select("id, full_name, social_name, birth_date, mother_name, created_at, neighborhood").neq("status", "mesclado").order("created_at", { ascending: false }).limit(8),
@@ -22,6 +24,7 @@ export default async function PacientesPage() {
         eyebrow="Cadastro único"
         title="Pacientes"
         subtitle={`${count ?? 0} pessoas na rede. Antes de cadastrar, busque para não criar um registro duplicado.`}
+        actions={can(profile.role, "patients.create") && <Button asChild variant="lilac"><Link href="/pacientes/digitalizar"><ScanLine /> Digitalizar ficha em papel</Link></Button>}
       />
       <PatientSearch />
 

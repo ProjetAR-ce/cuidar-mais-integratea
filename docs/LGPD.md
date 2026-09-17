@@ -32,6 +32,8 @@ O sistema trata **dados pessoais sensíveis de saúde de crianças e adolescente
 
 ## 4. Dados expostos para fora do sistema
 
+- **Digitalização de fichas por foto:** a imagem é enviada somente do servidor para o modelo de IA (Anthropic), processada em memória e **não é armazenada** no sistema. Recepção não recebe a H.D. extraída (conteúdo clínico). Os dados só entram no cadastro após **revisão humana**, e a origem fica registrada na linha do tempo. Antes do uso com dados reais, a Prefeitura deve validar o tratamento por operador externo (contrato, retenção zero e transferência internacional, art. 33).
+
 - **API pública v1** e **WhatsApp:** somente conteúdo público e números **agregados**. Filas com menos de 5 pessoas aparecem como faixa ("menos de 5"), o que reduz o risco de reidentificação.
 - O bot **não pede nem recebe** CNS, CPF, laudos ou dados clínicos, e recusa consultas individuais.
 - **Exportação de indicadores:** CSV só com agregados; cada exportação é auditada.

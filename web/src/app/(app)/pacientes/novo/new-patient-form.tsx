@@ -4,11 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "motion/react";
-import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, HeartHandshake, IdCard, MapPin } from "lucide-react";
+import { AlertTriangle, ArrowLeft, ArrowRight, Check, ExternalLink, Eye, HeartHandshake, IdCard, MapPin, RotateCcw, ScanLine, Sparkles, ZoomIn, ZoomOut } from "lucide-react";
 import { toast } from "sonner";
-import { checkDuplicates, createPatient, type DuplicateHit } from "@/lib/actions/care";
+import { addJourneyNote, checkDuplicates, createPatient, type DuplicateHit } from "@/lib/actions/care";
+import { searchPatients } from "@/lib/actions/search";
+import type { ScanResult } from "@/lib/actions/scan";
 import { Button } from "@/components/ui/button";
-import { Card, PageHeader, ProgressBar } from "@/components/ui/primitives";
+import { Badge, Card, PageHeader, ProgressBar } from "@/components/ui/primitives";
 import { Field, Input, Select } from "@/components/ui/form";
 import { Celebrate } from "@/components/ui/feedback";
 import { age, fmtDate, maskCns } from "@/lib/format";
@@ -20,7 +22,7 @@ const STEPS = [
   { key: "ref", label: "Referência", icon: MapPin },
 ] as const;
 
-type Form = {
+export type Form = {
   full_name: string; social_name: string; birth_date: string; sex: string; mother_name: string; cns: string; cpf: string;
   guardian_relationship: string; guardian_name: string; guardian_phone: string;
   aps_reference: string; school_name: string; address: string; neighborhood: string;
@@ -41,7 +43,10 @@ const maskPhone = (v: string) => {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 };
 
-export function NewPatientForm({ initialName, initialBirth, clinical }: { initialName: string; initialBirth: string; clinical: boolean }) {
+/** Modo revisão: dados vindos da foto de uma ficha em papel, conferidos lado a lado com a imagem. */
+export type ReviewInfo = { preview: string; isPdf: boolean; result: ScanResult; onRestart: () => void };
+
+export function NewPatientForm({ initialName, initialBirth, clinical, prefill, review }: { initialName: string; initialBirth: string; clinical: boolean; prefill?: Partial<Form>; review?: ReviewInfo }) {
   const router = useRouter();
   const [step, setStep] = React.useState(0);
   const [errors, setErrors] = React.useState<Partial<Record<keyof Form, string>>>({});
@@ -55,7 +60,14 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
     guardian_relationship: "Mãe", guardian_name: "", guardian_phone: "", aps_reference: "", school_name: "", address: "", neighborhood: "",
     phone: "", race_color: "", guardian_cns: "", guardian_birth_date: "", municipality: "Crateús", state: "CE",
     zone: "", school_grade: "", school_shift: "", diagnostic_hypothesis: "",
+    ...Object.fromEntries(Object.entries(prefill ?? {}).map(([k, v]) => [k,
+      k === "cns" || k === "guardian_cns" ? maskCnsInput(v ?? "") : k === "cpf" ? maskCpfInput(v ?? "") : k === "phone" || k === "guardian_phone" ? maskPhone(v ?? "") : v ?? ""])),
   });
+  // Campos com leitura duvidosa ficam destacados até a pessoa mexer neles
+  const [uncertain, setUncertain] = React.useState<Set<string>>(() => new Set(review?.result.uncertain ?? []));
+  const [zoom, setZoom] = React.useState(false);
+  const warn = (k: keyof Form) => (uncertain.has(k) ? "border-sun-edge bg-sun-soft ring-2 ring-sun/40" : undefined);
+  const hintOr = (k: keyof Form, hint?: string) => (uncertain.has(k) ? "Leitura incerta: confira na foto." : hint);
   const set = (k: keyof Form) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let v = e.target.value;
     if (k === "cns") v = maskCnsInput(v);
@@ -64,7 +76,13 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
     if (k === "guardian_cns") v = maskCnsInput(v);
     setF((s) => ({ ...s, [k]: v }));
     setErrors((s) => ({ ...s, [k]: undefined }));
+    setUncertain((s) => { if (!s.has(k)) return s; const n = new Set(s); n.delete(k); return n; });
   };
+
+  // RN-001: a busca antes do cadastro também vale para ficha digitalizada
+  React.useEffect(() => {
+    if (review && prefill?.full_name) searchPatients(prefill.full_name, prefill.birth_date || null);
+  }, [review, prefill?.full_name, prefill?.birth_date]);
 
   // Verificação de duplicidade em tempo real
   React.useEffect(() => {
@@ -77,9 +95,10 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
 
   const exactDoc = dups.find((d) => d.reasons.some((r) => r.startsWith("CNS igual") || r === "CPF igual"));
 
-  function validate(s: number) {
+  function validate(steps: number | number[]) {
+    const list = Array.isArray(steps) ? steps : [steps];
     const e: Partial<Record<keyof Form, string>> = {};
-    if (s === 0) {
+    if (list.includes(0)) {
       if (f.full_name.trim().split(/\s+/).length < 2) e.full_name = "Informe nome e sobrenome.";
       if (!f.birth_date) e.birth_date = "Informe a data de nascimento.";
       else if (new Date(f.birth_date) > new Date()) e.birth_date = "A data não pode estar no futuro.";
@@ -88,8 +107,8 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
       if (f.cpf && digits(f.cpf).length !== 11) e.cpf = "O CPF tem 11 dígitos.";
       if (!f.cns && !f.cpf) e.cns = "Sem CNS? Informe o CPF, se houver. Se não tiver nenhum, deixe em branco e siga.";
     }
-    if (s === 1 && f.guardian_phone && digits(f.guardian_phone).length < 10) e.guardian_phone = "Telefone incompleto.";
-    if (s === 1 && f.guardian_cns && digits(f.guardian_cns).length !== 15) e.guardian_cns = "O CNS tem 15 dígitos.";
+    if (list.includes(1) && f.guardian_phone && digits(f.guardian_phone).length < 10) e.guardian_phone = "Telefone incompleto.";
+    if (list.includes(1) && f.guardian_cns && digits(f.guardian_cns).length !== 15) e.guardian_cns = "O CNS tem 15 dígitos.";
     const blocking = Object.entries(e).filter(([k]) => !(k === "cns" && !f.cns && !f.cpf));
     setErrors(e);
     return blocking.length === 0;
@@ -103,8 +122,12 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
   }
 
   async function submit() {
-    if (!validate(0) || !validate(1)) { setStep(0); return; }
+    if (review) {
+      if (!validate([0, 1])) { document.querySelector<HTMLElement>("[aria-invalid=true]")?.focus(); toast.error("Confira os campos destacados em vermelho."); return; }
+      if (exactDoc || (dups.length > 0 && !ack)) { document.getElementById("dup-panel")?.focus(); return; }
+    } else if (!validate(0) || !validate(1)) { setStep(0); return; }
     setSaving(true);
+    if (review) await searchPatients(f.full_name, f.birth_date || null);
     const r = await createPatient({
       ...f,
       sex: (f.sex || undefined) as "feminino" | "masculino" | "intersexo" | "nao_informado" | undefined,
@@ -119,16 +142,64 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
     });
     setSaving(false);
     if (!r.ok) { toast.error("Não foi possível cadastrar", { description: r.error }); return; }
+    if (review) {
+      const extra = [review.result.recordNumber && `prontuário físico nº ${review.result.recordNumber}`, review.result.openedAt && `aberto em ${fmtDate(review.result.openedAt)}`].filter(Boolean).join(", ");
+      await addJourneyNote(r.data as string, `Cadastro digitalizado a partir de ficha em papel (${review.result.formType}${extra ? `, ${extra}` : ""}), com leitura automática e revisão humana antes de salvar.`);
+    }
     setParty(r.data as string);
   }
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div className={cn("mx-auto", review ? "max-w-7xl" : "max-w-3xl")}>
       <Button asChild variant="ghost" size="sm" className="-ml-2 mb-2"><Link href="/pacientes"><ArrowLeft /> Voltar para a busca</Link></Button>
-      <PageHeader title="Novo cadastro" subtitle="Colete só o necessário para o cuidado e a coordenação da rede." />
+      {review ? (
+        <PageHeader
+          eyebrow={<span className="inline-flex items-center gap-1.5"><Sparkles className="size-4 text-primary" /> Lido automaticamente · {review.result.formType}</span>}
+          title="Revise antes de salvar"
+          subtitle="Compare cada campo com a foto. Nada é salvo até você confirmar."
+          actions={<Button variant="secondary" onClick={review.onRestart}><RotateCcw /> Ler outra foto</Button>}
+        />
+      ) : (
+        <PageHeader
+          title="Novo cadastro"
+          subtitle="Colete só o necessário para o cuidado e a coordenação da rede."
+          actions={<Button asChild variant="lilac"><Link href="/pacientes/digitalizar"><ScanLine /> Digitalizar ficha em papel</Link></Button>}
+        />
+      )}
 
+      <div className={cn(review && "grid items-start gap-6 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]")}>
+      {review && (
+        <aside className="lg:sticky lg:top-20" aria-label="Foto da ficha">
+          <Card className="overflow-hidden">
+            <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-2.5">
+              <p className="flex items-center gap-2 text-footnote font-bold text-ink-strong"><Eye className="size-4" /> Ficha original</p>
+              {!review.isPdf && <Button size="sm" variant="ghost" onClick={() => setZoom((z) => !z)} aria-pressed={zoom}>{zoom ? <><ZoomOut /> Reduzir</> : <><ZoomIn /> Ampliar</>}</Button>}
+            </div>
+            <div className={cn("bg-surface-2", zoom ? "max-h-[75vh] overflow-auto" : "max-h-[70vh] overflow-hidden")}>
+              {review.isPdf
+                ? <iframe src={review.preview} title="Ficha em PDF" className="h-[70vh] w-full" />
+                // eslint-disable-next-line @next/next/no-img-element -- pré-visualização local (blob:), não passa pelo servidor
+                : <img src={review.preview} alt="Foto da ficha em papel" className={cn("block", zoom ? "w-[180%] max-w-none" : "mx-auto max-h-[70vh] w-auto object-contain")} />}
+            </div>
+          </Card>
+          <Card className="mt-4 space-y-3 p-4">
+            <div className="flex flex-wrap gap-2">
+              <Badge tone="mint" size="sm">{Object.keys(review.result.fields).length} campos lidos</Badge>
+              {uncertain.size > 0 ? <Badge tone="sun" size="sm">{uncertain.size} para conferir</Badge> : <Badge tone="mint" size="sm">Tudo conferido</Badge>}
+              {review.result.recordNumber && <Badge tone="lilac" size="sm">Prontuário nº {review.result.recordNumber}</Badge>}
+            </div>
+            {review.result.notes.length > 0 && (
+              <ul className="space-y-1.5 text-footnote text-ink">
+                {review.result.notes.map((n) => <li key={n} className="flex gap-2"><AlertTriangle className="mt-0.5 size-4 shrink-0 text-sun-edge" />{n}</li>)}
+              </ul>
+            )}
+            <p className="text-caption text-ink-muted">A foto fica só no seu navegador e não é armazenada. A leitura automática pode errar: a responsabilidade pela conferência é de quem salva.</p>
+          </Card>
+        </aside>
+      )}
+      <div>
       {/* Stepper */}
-      <div className="mb-6">
+      <div className={cn("mb-6", review && "hidden")}>
         <ProgressBar value={step + 1} max={STEPS.length} tone="mint" label="Progresso do cadastro" />
         <ol className="mt-3 grid grid-cols-3 gap-2">
           {STEPS.map((s, i) => (
@@ -145,28 +216,29 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
       <Card className="p-5 sm:p-7">
         <AnimatePresence mode="wait">
           <motion.div key={step} initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 }} transition={{ duration: 0.22 }}>
-            {step === 0 && (
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field className="sm:col-span-2" label="Nome completo" htmlFor="full_name" required error={errors.full_name}>
-                  <Input id="full_name" value={f.full_name} onChange={set("full_name")} autoFocus aria-invalid={!!errors.full_name} />
+            {(review || step === 0) && (
+              <div className={cn("grid gap-5 sm:grid-cols-2", review && 0 > 0 && "mt-8 border-t border-line pt-6")}>
+                {review && <h2 className="flex items-center gap-2 text-title-3 sm:col-span-2"><IdCard className="size-5 text-primary" /> Identificação</h2>}
+                <Field className="sm:col-span-2" label="Nome completo" htmlFor="full_name" hint={hintOr("full_name")} required error={errors.full_name}>
+                  <Input id="full_name" className={warn("full_name")} value={f.full_name} onChange={set("full_name")} autoFocus={!review} aria-invalid={!!errors.full_name} />
                 </Field>
-                <Field label="Nome social" htmlFor="social_name" hint="Opcional. Será usado na tela.">
-                  <Input id="social_name" value={f.social_name} onChange={set("social_name")} />
+                <Field label="Nome social" htmlFor="social_name" hint={hintOr("social_name", "Opcional. Será usado na tela.")}>
+                  <Input id="social_name" className={warn("social_name")} value={f.social_name} onChange={set("social_name")} />
                 </Field>
-                <Field label="Data de nascimento" htmlFor="birth_date" required error={errors.birth_date}>
-                  <Input id="birth_date" type="date" value={f.birth_date} onChange={set("birth_date")} max={new Date().toISOString().slice(0, 10)} aria-invalid={!!errors.birth_date} />
+                <Field label="Data de nascimento" htmlFor="birth_date" hint={hintOr("birth_date")} required error={errors.birth_date}>
+                  <Input id="birth_date" className={warn("birth_date")} type="date" value={f.birth_date} onChange={set("birth_date")} max={new Date().toISOString().slice(0, 10)} aria-invalid={!!errors.birth_date} />
                 </Field>
-                <Field className="sm:col-span-2" label="Nome da mãe" htmlFor="mother_name" required error={errors.mother_name}>
-                  <Input id="mother_name" value={f.mother_name} onChange={set("mother_name")} aria-invalid={!!errors.mother_name} />
+                <Field className="sm:col-span-2" label="Nome da mãe" htmlFor="mother_name" hint={hintOr("mother_name")} required error={errors.mother_name}>
+                  <Input id="mother_name" className={warn("mother_name")} value={f.mother_name} onChange={set("mother_name")} aria-invalid={!!errors.mother_name} />
                 </Field>
-                <Field label="CNS (Cartão SUS)" htmlFor="cns" error={f.cns ? errors.cns : undefined} hint={!f.cns ? errors.cns ?? "15 dígitos. CNS igual não pode ser duplicado." : undefined}>
-                  <Input id="cns" inputMode="numeric" value={f.cns} onChange={set("cns")} placeholder="000 0000 0000 0000" aria-invalid={!!(f.cns && errors.cns)} />
+                <Field label="CNS (Cartão SUS)" htmlFor="cns" error={f.cns ? errors.cns : undefined} hint={hintOr("cns", !f.cns ? errors.cns ?? "15 dígitos. CNS igual não pode ser duplicado." : undefined)}>
+                  <Input id="cns" className={warn("cns")} inputMode="numeric" value={f.cns} onChange={set("cns")} placeholder="000 0000 0000 0000" aria-invalid={!!(f.cns && errors.cns)} />
                 </Field>
-                <Field label="CPF" htmlFor="cpf" error={errors.cpf}>
-                  <Input id="cpf" inputMode="numeric" value={f.cpf} onChange={set("cpf")} placeholder="000.000.000-00" aria-invalid={!!errors.cpf} />
+                <Field label="CPF" htmlFor="cpf" hint={hintOr("cpf")} error={errors.cpf}>
+                  <Input id="cpf" className={warn("cpf")} inputMode="numeric" value={f.cpf} onChange={set("cpf")} placeholder="000.000.000-00" aria-invalid={!!errors.cpf} />
                 </Field>
-                <Field label="Raça/cor" htmlFor="race_color">
-                  <Select id="race_color" value={f.race_color} onChange={set("race_color")}>
+                <Field label="Raça/cor" htmlFor="race_color" hint={hintOr("race_color")}>
+                  <Select id="race_color" className={warn("race_color")} value={f.race_color} onChange={set("race_color")}>
                     <option value="">Prefiro não informar agora</option>
                     <option value="branca">Branca</option>
                     <option value="preta">Preta</option>
@@ -176,11 +248,11 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
                     <option value="nao_informado">Não informado</option>
                   </Select>
                 </Field>
-                <Field label="Telefone do paciente" htmlFor="phone">
-                  <Input id="phone" inputMode="tel" value={f.phone} onChange={set("phone")} placeholder="(88) 90000-0000" />
+                <Field label="Telefone do paciente" htmlFor="phone" hint={hintOr("phone")}>
+                  <Input id="phone" className={warn("phone")} inputMode="tel" value={f.phone} onChange={set("phone")} placeholder="(88) 90000-0000" />
                 </Field>
-                <Field label="Sexo" htmlFor="sex">
-                  <Select id="sex" value={f.sex} onChange={set("sex")}>
+                <Field label="Sexo" htmlFor="sex" hint={hintOr("sex")}>
+                  <Select id="sex" className={warn("sex")} value={f.sex} onChange={set("sex")}>
                     <option value="">Prefiro não informar agora</option>
                     <option value="feminino">Feminino</option>
                     <option value="masculino">Masculino</option>
@@ -191,62 +263,64 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
               </div>
             )}
 
-            {step === 1 && (
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field label="Relação com o paciente" htmlFor="guardian_relationship">
-                  <Select id="guardian_relationship" value={f.guardian_relationship} onChange={set("guardian_relationship")}>
+            {(review || step === 1) && (
+              <div className={cn("grid gap-5 sm:grid-cols-2", review && 1 > 0 && "mt-8 border-t border-line pt-6")}>
+                {review && <h2 className="flex items-center gap-2 text-title-3 sm:col-span-2"><HeartHandshake className="size-5 text-primary" /> Responsável</h2>}
+                <Field label="Relação com o paciente" htmlFor="guardian_relationship" hint={hintOr("guardian_relationship")}>
+                  <Select id="guardian_relationship" className={warn("guardian_relationship")} value={f.guardian_relationship} onChange={set("guardian_relationship")}>
                     {["Mãe", "Pai", "Avó", "Avô", "Tia", "Tio", "Responsável legal", "Próprio paciente"].map((o) => <option key={o}>{o}</option>)}
                   </Select>
                 </Field>
-                <Field label="Nome do responsável" htmlFor="guardian_name" hint={f.guardian_relationship === "Mãe" ? "Se deixar em branco, usamos o nome da mãe." : undefined}>
-                  <Input id="guardian_name" value={f.guardian_name} onChange={set("guardian_name")} placeholder={f.guardian_relationship === "Mãe" ? f.mother_name : ""} />
+                <Field label="Nome do responsável" htmlFor="guardian_name" hint={hintOr("guardian_name", f.guardian_relationship === "Mãe" ? "Se deixar em branco, usamos o nome da mãe." : undefined)}>
+                  <Input id="guardian_name" className={warn("guardian_name")} value={f.guardian_name} onChange={set("guardian_name")} placeholder={f.guardian_relationship === "Mãe" ? f.mother_name : ""} />
                 </Field>
-                <Field label="CNS do responsável" htmlFor="guardian_cns" error={errors.guardian_cns}>
-                  <Input id="guardian_cns" inputMode="numeric" value={f.guardian_cns} onChange={set("guardian_cns")} placeholder="000 0000 0000 0000" aria-invalid={!!errors.guardian_cns} />
+                <Field label="CNS do responsável" htmlFor="guardian_cns" hint={hintOr("guardian_cns")} error={errors.guardian_cns}>
+                  <Input id="guardian_cns" className={warn("guardian_cns")} inputMode="numeric" value={f.guardian_cns} onChange={set("guardian_cns")} placeholder="000 0000 0000 0000" aria-invalid={!!errors.guardian_cns} />
                 </Field>
-                <Field label="Nascimento do responsável" htmlFor="guardian_birth_date">
-                  <Input id="guardian_birth_date" type="date" value={f.guardian_birth_date} onChange={set("guardian_birth_date")} max={new Date().toISOString().slice(0, 10)} />
+                <Field label="Nascimento do responsável" htmlFor="guardian_birth_date" hint={hintOr("guardian_birth_date")}>
+                  <Input id="guardian_birth_date" className={warn("guardian_birth_date")} type="date" value={f.guardian_birth_date} onChange={set("guardian_birth_date")} max={new Date().toISOString().slice(0, 10)} />
                 </Field>
-                <Field label="Telefone para contato" htmlFor="guardian_phone" error={errors.guardian_phone}>
-                  <Input id="guardian_phone" inputMode="tel" value={f.guardian_phone} onChange={set("guardian_phone")} placeholder="(88) 90000-0000" aria-invalid={!!errors.guardian_phone} />
+                <Field label="Telefone para contato" htmlFor="guardian_phone" hint={hintOr("guardian_phone")} error={errors.guardian_phone}>
+                  <Input id="guardian_phone" className={warn("guardian_phone")} inputMode="tel" value={f.guardian_phone} onChange={set("guardian_phone")} placeholder="(88) 90000-0000" aria-invalid={!!errors.guardian_phone} />
                 </Field>
               </div>
             )}
 
-            {step === 2 && (
-              <div className="grid gap-5 sm:grid-cols-2">
-                <Field label="Unidade de saúde de referência (APS)" htmlFor="aps_reference">
-                  <Input id="aps_reference" value={f.aps_reference} onChange={set("aps_reference")} placeholder="Ex.: UBS Centro" />
+            {(review || step === 2) && (
+              <div className={cn("grid gap-5 sm:grid-cols-2", review && 2 > 0 && "mt-8 border-t border-line pt-6")}>
+                {review && <h2 className="flex items-center gap-2 text-title-3 sm:col-span-2"><MapPin className="size-5 text-primary" /> Referência</h2>}
+                <Field label="Unidade de saúde de referência (APS)" htmlFor="aps_reference" hint={hintOr("aps_reference")}>
+                  <Input id="aps_reference" className={warn("aps_reference")} value={f.aps_reference} onChange={set("aps_reference")} placeholder="Ex.: UBS Centro" />
                 </Field>
-                <Field label="Escola" htmlFor="school_name">
-                  <Input id="school_name" value={f.school_name} onChange={set("school_name")} />
+                <Field label="Escola" htmlFor="school_name" hint={hintOr("school_name")}>
+                  <Input id="school_name" className={warn("school_name")} value={f.school_name} onChange={set("school_name")} />
                 </Field>
-                <Field label="Endereço" htmlFor="address">
-                  <Input id="address" value={f.address} onChange={set("address")} />
+                <Field label="Endereço" htmlFor="address" hint={hintOr("address")}>
+                  <Input id="address" className={warn("address")} value={f.address} onChange={set("address")} />
                 </Field>
-                <Field label="Bairro" htmlFor="neighborhood">
-                  <Input id="neighborhood" value={f.neighborhood} onChange={set("neighborhood")} />
+                <Field label="Bairro" htmlFor="neighborhood" hint={hintOr("neighborhood")}>
+                  <Input id="neighborhood" className={warn("neighborhood")} value={f.neighborhood} onChange={set("neighborhood")} />
                 </Field>
                 <div className="grid grid-cols-[1fr_5rem] gap-3">
-                  <Field label="Município" htmlFor="municipality"><Input id="municipality" value={f.municipality} onChange={set("municipality")} /></Field>
-                  <Field label="UF" htmlFor="state"><Input id="state" maxLength={2} value={f.state} onChange={set("state")} /></Field>
+                  <Field label="Município" htmlFor="municipality" hint={hintOr("municipality")}><Input id="municipality" className={warn("municipality")} value={f.municipality} onChange={set("municipality")} /></Field>
+                  <Field label="UF" htmlFor="state" hint={hintOr("state")}><Input id="state" className={warn("state")} maxLength={2} value={f.state} onChange={set("state")} /></Field>
                 </div>
-                <Field label="Zona" htmlFor="zone">
-                  <Select id="zone" value={f.zone} onChange={set("zone")}>
+                <Field label="Zona" htmlFor="zone" hint={hintOr("zone")}>
+                  <Select id="zone" className={warn("zone")} value={f.zone} onChange={set("zone")}>
                     <option value="">—</option><option value="urbana">Urbana</option><option value="rural">Rural</option>
                   </Select>
                 </Field>
                 <div className="grid grid-cols-2 gap-3 sm:col-span-2">
-                  <Field label="Série/turma" htmlFor="school_grade"><Input id="school_grade" value={f.school_grade} onChange={set("school_grade")} placeholder="Ex.: 2º ano B" /></Field>
-                  <Field label="Turno" htmlFor="school_shift">
-                    <Select id="school_shift" value={f.school_shift} onChange={set("school_shift")}>
+                  <Field label="Série/turma" htmlFor="school_grade" hint={hintOr("school_grade")}><Input id="school_grade" className={warn("school_grade")} value={f.school_grade} onChange={set("school_grade")} placeholder="Ex.: 2º ano B" /></Field>
+                  <Field label="Turno" htmlFor="school_shift" hint={hintOr("school_shift")}>
+                    <Select id="school_shift" className={warn("school_shift")} value={f.school_shift} onChange={set("school_shift")}>
                       <option value="">—</option><option value="manha">Manhã</option><option value="tarde">Tarde</option><option value="noite">Noite</option><option value="integral">Integral</option>
                     </Select>
                   </Field>
                 </div>
                 {clinical && (
-                  <Field className="sm:col-span-2" label="Hipótese diagnóstica (H.D.)" htmlFor="diagnostic_hypothesis" hint="Opcional. Fica separada da identificação e só a equipe clínica vê.">
-                    <Input id="diagnostic_hypothesis" value={f.diagnostic_hypothesis} onChange={set("diagnostic_hypothesis")} />
+                  <Field className="sm:col-span-2" label="Hipótese diagnóstica (H.D.)" htmlFor="diagnostic_hypothesis" hint={hintOr("diagnostic_hypothesis", "Opcional. Fica separada da identificação e só a equipe clínica vê.")}>
+                    <Input id="diagnostic_hypothesis" className={warn("diagnostic_hypothesis")} value={f.diagnostic_hypothesis} onChange={set("diagnostic_hypothesis")} />
                   </Field>
                 )}
                 <div className="rounded-lg bg-surface-2 p-4 sm:col-span-2">
@@ -291,16 +365,24 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
         )}
 
         <div className="mt-8 flex items-center justify-between gap-3">
-          <Button variant="secondary" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}><ArrowLeft /> Voltar</Button>
-          {step < STEPS.length - 1 ? (
+          {review ? (
+            <Button variant="secondary" onClick={review.onRestart}><RotateCcw /> Ler outra foto</Button>
+          ) : (
+            <Button variant="secondary" onClick={() => setStep((s) => Math.max(0, s - 1))} disabled={step === 0}><ArrowLeft /> Voltar</Button>
+          )}
+          {review ? (
+            <Button variant="mint" size="lg" onClick={submit} loading={saving} disabled={!!exactDoc || (dups.length > 0 && !ack)}><Check /> Confirmar e salvar</Button>
+          ) : step < STEPS.length - 1 ? (
             <Button onClick={next} disabled={step === 0 && (!!exactDoc || (dups.length > 0 && !ack))}>Continuar <ArrowRight /></Button>
           ) : (
             <Button variant="mint" size="lg" onClick={submit} loading={saving}><Check /> Salvar cadastro</Button>
           )}
         </div>
       </Card>
+      </div>
+      </div>
 
-      <Celebrate show={!!party} message="Cadastro criado!" onDone={() => party && router.push(`/pacientes/${party}`)} />
+      <Celebrate show={!!party} message={review ? "Ficha digitalizada!" : "Cadastro criado!"} onDone={() => party && router.push(`/pacientes/${party}`)} />
     </div>
   );
 }
