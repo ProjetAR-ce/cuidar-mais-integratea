@@ -1,0 +1,143 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: IntegraTEA - agente Strands conectado ao WhatsApp Cloud API
+
+Parameters:
+  MetaVerifyToken:
+    Type: String
+    NoEcho: true
+  MetaAppSecret:
+    Type: String
+    NoEcho: true
+  WhatsAppAccessToken:
+    Type: String
+    NoEcho: true
+  WhatsAppPhoneNumberId:
+    Type: String
+  WhatsAppApiVersion:
+    Type: String
+    Default: v24.0
+  IntegraTeaApiUrl:
+    Type: String
+    Description: URL base da API pública do sistema web, ex. https://seu-dominio/api/v1
+  IntegraTeaApiKey:
+    Type: String
+    NoEcho: true
+  SupabaseUrl:
+    Type: String
+    Default: ""
+    Description: Opcional (modo legado). Com a API configurada, o bot não precisa de chave do banco.
+  SupabaseServiceRoleKey:
+    Type: String
+    NoEcho: true
+    Default: ""
+  BedrockModelId:
+    Type: String
+    Default: global.anthropic.claude-haiku-4-5-20251001-v1:0
+
+Globals:
+  Function:
+    Runtime: python3.12
+    Architectures: [x86_64]
+    CodeUri: .
+    Tracing: Active
+    Environment:
+      Variables:
+        POWERTOOLS_SERVICE_NAME: integratea-whatsapp
+
+Resources:
+  WhatsAppApi:
+    Type: AWS::Serverless::HttpApi
+
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+
+  MessageQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 180
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 3
+
+  MessageDedupeTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: message_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: message_id
+          KeyType: HASH
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+
+  WebhookFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.webhook_handler.handler
+      Timeout: 10
+      MemorySize: 256
+      Environment:
+        Variables:
+          META_VERIFY_TOKEN: !Ref MetaVerifyToken
+          META_APP_SECRET: !Ref MetaAppSecret
+          QUEUE_URL: !Ref MessageQueue
+      Policies:
+        - SQSSendMessagePolicy:
+            QueueName: !GetAtt MessageQueue.QueueName
+      Events:
+        VerifyWebhook:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WhatsAppApi
+            Path: /webhook
+            Method: GET
+        ReceiveWebhook:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref WhatsAppApi
+            Path: /webhook
+            Method: POST
+
+  AgentWorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: src.worker_handler.handler
+      Timeout: 120
+      MemorySize: 1024
+      Environment:
+        Variables:
+          DEDUPE_TABLE: !Ref MessageDedupeTable
+          WHATSAPP_ACCESS_TOKEN: !Ref WhatsAppAccessToken
+          WHATSAPP_PHONE_NUMBER_ID: !Ref WhatsAppPhoneNumberId
+          WHATSAPP_API_VERSION: !Ref WhatsAppApiVersion
+          INTEGRATEA_API_URL: !Ref IntegraTeaApiUrl
+          INTEGRATEA_API_KEY: !Ref IntegraTeaApiKey
+          SUPABASE_URL: !Ref SupabaseUrl
+          SUPABASE_SERVICE_ROLE_KEY: !Ref SupabaseServiceRoleKey
+          BEDROCK_MODEL_ID: !Ref BedrockModelId
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref MessageDedupeTable
+        - Statement:
+            - Effect: Allow
+              Action:
+                - bedrock:InvokeModel
+                - bedrock:InvokeModelWithResponseStream
+              Resource: "*"
+      Events:
+        Messages:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt MessageQueue.Arn
+            BatchSize: 1
+
+Outputs:
+  WebhookUrl:
+    Description: URL para cadastrar como callback na Meta
+    Value: !Sub "https://${WhatsAppApi}.execute-api.${AWS::Region}.${AWS::URLSuffix}/webhook"

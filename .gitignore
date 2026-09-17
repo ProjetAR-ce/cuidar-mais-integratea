@@ -1,0 +1,32 @@
+# dependências e builds
+node_modules/
+.next/
+out/
+build/
+dist/
+*.tsbuildinfo
+next-env.d.ts
+
+# testes
+web/test-results/
+web/playwright-report/
+web/blob-report/
+
+# segredos: nunca versionar
+.env*
+!.env.example
+*.pem
+
+# python / aws
+__pycache__/
+*.pyc
+.venv/
+.aws-sam/
+samconfig.toml
+
+# sistema e editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.claude/settings.local.json

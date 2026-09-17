@@ -1,0 +1,87 @@
+-- Base pública consultada pelo agente do WhatsApp. Não armazene prontuários,
+-- dados clínicos ou dados pessoais nesta tabela.
+create table if not exists public.agent_knowledge (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  content text not null,
+  service text,
+  audience text not null default 'publico',
+  published boolean not null default false,
+  updated_at timestamptz not null default now()
+);
+
+alter table public.agent_knowledge enable row level security;
+
+create index if not exists agent_knowledge_search_idx
+  on public.agent_knowledge using gin (
+    to_tsvector(
+      'portuguese',
+      coalesce(title, '') || ' ' || coalesce(content, '') || ' ' || coalesce(service, '')
+    )
+  );
+
+create or replace function public.search_agent_knowledge(
+  search_query text,
+  result_limit integer default 5
+)
+returns table (
+  title text,
+  content text,
+  service text,
+  audience text,
+  updated_at timestamptz
+)
+language sql
+stable
+set search_path = public
+as $$
+  select k.title, k.content, k.service, k.audience, k.updated_at
+  from public.agent_knowledge k
+  where k.published = true
+    and to_tsvector(
+      'portuguese',
+      coalesce(k.title, '') || ' ' || coalesce(k.content, '') || ' ' || coalesce(k.service, '')
+    ) @@ websearch_to_tsquery('portuguese', left(search_query, 500))
+  order by ts_rank(
+    to_tsvector(
+      'portuguese',
+      coalesce(k.title, '') || ' ' || coalesce(k.content, '') || ' ' || coalesce(k.service, '')
+    ),
+    websearch_to_tsquery('portuguese', left(search_query, 500))
+  ) desc,
+  k.updated_at desc
+  limit least(greatest(result_limit, 1), 8);
+$$;
+
+revoke all on function public.search_agent_knowledge(text, integer) from public;
+revoke all on function public.search_agent_knowledge(text, integer) from anon;
+revoke all on function public.search_agent_knowledge(text, integer) from authenticated;
+grant execute on function public.search_agent_knowledge(text, integer) to service_role;
+
+-- Exemplos seguros derivados do escopo do edital. Revise e complete contatos,
+-- endereços, horários e fluxos oficiais antes de marcar novos itens como published.
+insert into public.agent_knowledge (title, content, service, audience, published)
+select * from (values
+  (
+    'O que é o IntegraTEA',
+    'O IntegraTEA coordena a jornada de cuidado de pessoas com TEA na rede municipal, integrando NASF, NAPE, CREAES, Casa Mais Azul e CRASF.',
+    'Rede IntegraTEA',
+    'publico',
+    true
+  ),
+  (
+    'Limites do atendimento pelo WhatsApp',
+    'O canal fornece orientações gerais. Ele não realiza diagnóstico, prescrição, decisão clínica nem consulta prontuário, posição individual em fila ou agenda pessoal.',
+    'Rede IntegraTEA',
+    'publico',
+    true
+  ),
+  (
+    'Urgência médica',
+    'Em situação de urgência ou risco imediato, ligue gratuitamente para o SAMU 192 ou procure o serviço de urgência mais próximo.',
+    'SAMU',
+    'publico',
+    true
+  )
+) as seed(title, content, service, audience, published)
+where not exists (select 1 from public.agent_knowledge);
