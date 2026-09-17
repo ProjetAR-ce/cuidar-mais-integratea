@@ -18,7 +18,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <div className="relative grid min-h-dvh overflow-hidden lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative hidden flex-col justify-between overflow-hidden bg-[#fbf6ee] p-12 lg:flex" aria-hidden>
+      <section className="relative hidden flex-col justify-between overflow-hidden bg-primary-soft p-12 lg:flex" aria-hidden>
         <Blob tone="peach" variant={0} className="-top-16 -left-20 size-96 animate-float" opacity={0.55} />
         <Blob tone="mint" variant={1} className="top-1/3 -right-24 size-[26rem] animate-float [animation-delay:-2s]" opacity={0.5} />
         <Blob tone="lilac" variant={2} className="-bottom-24 left-10 size-96 animate-float [animation-delay:-4s]" opacity={0.45} />

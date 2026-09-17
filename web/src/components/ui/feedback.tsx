@@ -14,7 +14,7 @@ export function EmptyState({ title, description, action, className, celebrate }:
       <Blob tone="lilac" variant={1} className="-right-8 -bottom-12 size-44" opacity={0.3} />
       <div className="relative mb-4">
         {celebrate ? (
-          <span className="flex size-20 animate-pop items-center justify-center rounded-full bg-mint text-ink-strong shadow-[0_5px_0_var(--color-mint-edge)]">
+          <span className="flex size-20 animate-pop items-center justify-center rounded-full bg-primary text-white">
             <Check className="size-10" strokeWidth={3} />
           </span>
         ) : (
@@ -37,7 +37,7 @@ export function Celebrate({ show, message, onDone }: { show: boolean; message: s
   }, [show, onDone]);
 
   const dots = React.useMemo(
-    () => Array.from({ length: 18 }, (_, i) => ({ angle: (i / 18) * Math.PI * 2, dist: 70 + (i % 3) * 28, color: ["mint", "peach", "lilac", "sun", "rose"][i % 5] })),
+    () => Array.from({ length: 18 }, (_, i) => ({ angle: (i / 18) * Math.PI * 2, dist: 70 + (i % 3) * 28, color: ["primary", "mint-edge", "peach-edge", "lilac-edge", "sun-edge"][i % 5] })),
     []
   );
 
@@ -61,7 +61,7 @@ export function Celebrate({ show, message, onDone }: { show: boolean; message: s
               />
             ))}
             <motion.span
-              className="flex size-20 items-center justify-center rounded-full bg-mint text-ink-strong shadow-[0_6px_0_var(--color-mint-edge)]"
+              className="flex size-20 items-center justify-center rounded-full bg-primary text-white shadow-[0_10px_30px_rgb(107_78_255/0.35)]"
               initial={{ scale: 0 }} animate={{ scale: [0, 1.2, 1] }} transition={{ duration: 0.45 }}
             >
               <Check className="size-11" strokeWidth={3.2} />

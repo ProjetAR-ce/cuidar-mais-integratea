@@ -7,8 +7,8 @@ export function Logo({ className, compact, tagline = true }: { className?: strin
       <Image src="/brand/symbol.png" alt="" width={44} height={44} priority className="size-10 shrink-0 sm:size-11" />
       {!compact && (
         <div className="leading-none">
-          <div className="text-[1.75rem] font-extrabold tracking-[-0.02em] text-ink">
-            Cuidar<span className="text-mint-edge">+</span>
+          <div className="text-[1.75rem] font-extrabold tracking-[-0.02em] text-primary">
+            Cuidar<span className="text-primary">+</span>
           </div>
           {tagline && <div className="mt-0.5 text-[0.6875rem] font-medium text-ink-muted">Inovação que transforma o cuidado.</div>}
         </div>

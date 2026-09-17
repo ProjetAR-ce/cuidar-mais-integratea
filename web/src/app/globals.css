@@ -8,61 +8,71 @@
 @theme {
   --font-sans: var(--font-baloo), ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
 
+  /* Identidade do app Cuidar+ (Flutter): roxo principal, tons claros, visual plano */
+  --color-primary: #6b4eff;
+  --color-primary-strong: #5a3ef0;
+  --color-primary-soft: #f4f3ff;
+  --color-primary-ink: #5925dc;
+
   /* Estrutura */
   --color-ink: #344054;
   --color-ink-strong: #1d2939;
-  --color-ink-muted: #5d6879;
+  --color-ink-muted: #667085;
   --color-ink-faint: #98a2b3;
-  --color-bg: #fdfbf7;
+  --color-bg: #f9fafb;
   --color-surface: #ffffff;
-  --color-surface-2: #f5f6f8;
+  --color-surface-2: #f2f4f7;
   --color-line: #eaecf0;
   --color-line-strong: #d0d5dd;
 
-  /* Marca: base / suave / borda 3D / texto acessível */
-  --color-mint: #91dcc1;
-  --color-mint-soft: #e6f7f0;
-  --color-mint-edge: #5fbf9d;
-  --color-mint-ink: #1b6b50;
+  /* Tons: base (preenchimento) / suave (fundo) / borda / texto acessível */
+  --color-mint: #75e0a7;
+  --color-mint-soft: #ecfdf3;
+  --color-mint-edge: #12b76a;
+  --color-mint-ink: #067647;
 
-  --color-peach: #f6b978;
-  --color-peach-soft: #fdf0e2;
-  --color-peach-edge: #d9924a;
-  --color-peach-ink: #9a4f0c;
+  --color-peach: #fdb022;
+  --color-peach-soft: #fff4ed;
+  --color-peach-edge: #f79009;
+  --color-peach-ink: #b54708;
 
-  --color-lilac: #b99bcb;
-  --color-lilac-soft: #f3ecf7;
-  --color-lilac-edge: #9575ac;
-  --color-lilac-ink: #5e3f78;
+  --color-lilac: #bdb4fe;
+  --color-lilac-soft: #f4f3ff;
+  --color-lilac-edge: #7a5af8;
+  --color-lilac-ink: #5925dc;
 
-  --color-sun: #f6d76f;
-  --color-sun-soft: #fdf7dc;
-  --color-sun-edge: #d4b341;
-  --color-sun-ink: #735800;
+  --color-sun: #fde272;
+  --color-sun-soft: #fefbe8;
+  --color-sun-edge: #fac515;
+  --color-sun-ink: #854a0e;
 
-  --color-rose: #f2b9c5;
-  --color-rose-soft: #fcebef;
-  --color-rose-edge: #d98898;
-  --color-rose-ink: #a3213f;
+  --color-rose: #fda29b;
+  --color-rose-soft: #fef3f2;
+  --color-rose-edge: #f04438;
+  --color-rose-ink: #b42318;
 
-  /* Cores de gráfico: mesma família da marca, validadas (CVD ΔE ≥ 8, croma e luminosidade).
-     Ordem categórica fixa: mint → peach → lilac → sun → rose. Contraste < 3:1 em 2 tons:
-     todo gráfico tem rótulos diretos e visão em tabela. */
-  --color-chart-mint: #2f9e78;
-  --color-chart-peach: #e07b2a;
-  --color-chart-lilac: #8a5cc2;
-  --color-chart-sun: #b8940f;
-  --color-chart-rose: #d4506d;
+  --color-blue: #84caff;
+  --color-blue-soft: #f0f9ff;
+  --color-blue-edge: #2e90fa;
+  --color-blue-ink: #175cd3;
+
+  /* Cores de gráfico derivadas do app, validadas (CVD ΔE 7,7 com rótulos e tabela; croma e luminosidade ok).
+     Ordem categórica fixa: mint → peach → lilac → sun → rose. */
+  --color-chart-mint: #12b76a;
+  --color-chart-peach: #ef6820;
+  --color-chart-lilac: #7a5af8;
+  --color-chart-sun: #ca8504;
+  --color-chart-rose: #e31b54;
 
   /* Raios */
-  --radius-sm: 10px;
-  --radius-md: 14px;
-  --radius-lg: 20px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
   --radius-xl: 28px;
-  --radius-2xl: 36px;
+  --radius-2xl: 32px;
 
   /* Sombras suaves (Apple) */
-  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04), 0 8px 24px rgb(16 24 40 / 0.06);
+  --shadow-card: 0 1px 2px rgb(16 24 40 / 0.04);
   --shadow-float: 0 12px 40px rgb(16 24 40 / 0.12);
   --shadow-inset: inset 0 0 0 1px rgb(16 24 40 / 0.06);
 
@@ -123,12 +133,12 @@
     letter-spacing: -0.01em;
   }
   :focus-visible {
-    outline: 3px solid var(--color-lilac-ink);
+    outline: 3px solid var(--color-primary);
     outline-offset: 2px;
     border-radius: 6px;
   }
   ::selection {
-    background: var(--color-lilac-soft);
+    background: var(--color-primary-soft);
   }
   .tabular {
     font-variant-numeric: tabular-nums;
@@ -136,19 +146,17 @@
 }
 
 @layer components {
-  /* Botão Duolingo: afunda ao clicar */
+  /* Botão plano do app Cuidar+, com resposta tátil discreta */
   .btn-3d {
-    --edge: var(--color-ink-strong);
-    box-shadow: 0 4px 0 var(--edge);
-    transform: translateY(0);
-    transition: transform 90ms ease, box-shadow 90ms ease, background-color 150ms ease, filter 150ms ease;
+    --edge: transparent;
+    box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+    transition: transform 90ms ease, background-color 150ms ease, filter 150ms ease, box-shadow 150ms ease;
   }
   .btn-3d:hover:not(:disabled) {
-    filter: brightness(1.03);
+    filter: brightness(0.97);
   }
   .btn-3d:active:not(:disabled) {
-    transform: translateY(4px);
-    box-shadow: 0 0 0 var(--edge);
+    transform: scale(0.98);
   }
   .glass {
     background: rgb(255 255 255 / 0.72);
@@ -159,7 +167,7 @@
     background: var(--color-surface);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-card);
-    border: 1px solid rgb(16 24 40 / 0.04);
+    border: 1px solid var(--color-line);
   }
   .scrollbar-none {
     scrollbar-width: none;

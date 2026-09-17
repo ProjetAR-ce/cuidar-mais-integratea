@@ -42,7 +42,7 @@ export function SegmentedControl<T extends string>({
             )}
             <span className="relative">{o.label}</span>
             {o.count !== undefined && (
-              <span className={cn("relative rounded-full px-1.5 text-caption tabular", active ? "bg-lilac-soft text-lilac-ink" : "bg-line text-ink-muted")}>{o.count}</span>
+              <span className={cn("relative rounded-full px-1.5 text-caption tabular", active ? "bg-primary-soft text-primary-ink" : "bg-line text-ink-muted")}>{o.count}</span>
             )}
           </button>
         );

@@ -106,7 +106,7 @@ export default async function PatientPage({ params, searchParams }: Params) {
 
       {/* Cabeçalho */}
       <Card className="relative overflow-hidden p-5 sm:p-7">
-        <div className="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-lilac-soft" aria-hidden />
+        <div className="pointer-events-none absolute -top-16 -right-16 size-56 rounded-full bg-primary-soft" aria-hidden />
         <div className="relative flex flex-wrap items-start gap-5">
           <Avatar name={patient.full_name} size="lg" className="size-20 text-title-1" />
           <div className="min-w-0 flex-1">
@@ -132,14 +132,14 @@ export default async function PatientPage({ params, searchParams }: Params) {
         {/* Jornada (estilo trilha do Duolingo) */}
         <ol className="relative mt-7 grid grid-cols-5 gap-1" aria-label="Etapas da jornada do cuidado">
           <div aria-hidden className="absolute top-6 right-[10%] left-[10%] h-1.5 rounded-full bg-surface-2">
-            <div className="h-full rounded-full bg-gradient-to-r from-rose via-lilac to-sun transition-all" style={{ width: `${(currentStage / 4) * 100}%` }} />
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${(currentStage / 4) * 100}%` }} />
           </div>
           {stages.map((s, i) => (
             <li key={s.key} className="relative flex flex-col items-center text-center" aria-current={i === currentStage ? "step" : undefined}>
               <span className={cn(
                 "relative flex size-12 items-center justify-center rounded-full border-4 border-surface transition",
                 s.done ? cn(TONE[s.tone].bg, "text-ink-strong") : "bg-surface-2 text-ink-faint",
-                i === currentStage && "scale-110 ring-4 ring-lilac/30"
+                i === currentStage && "scale-110 ring-4 ring-primary/25"
               )} style={s.done ? { boxShadow: `0 4px 0 var(--color-${s.tone}-edge)` } : undefined}>
                 <s.icon className="size-5" strokeWidth={2.4} aria-hidden />
                 {s.done && <Check className="absolute -right-1 -bottom-1 size-5 rounded-full bg-mint-ink p-0.5 text-white" strokeWidth={3.5} aria-hidden />}
@@ -252,9 +252,9 @@ export default async function PatientPage({ params, searchParams }: Params) {
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
           <Card className="p-5 sm:p-6">
             <div className="mb-5 flex flex-wrap gap-2" role="group" aria-label="Filtrar por serviço">
-              <Link href={`${base}?aba=jornada`} scroll={false} className={cn("rounded-full px-3 py-1.5 text-footnote font-semibold", !serviceFilter ? "bg-ink text-white" : "bg-surface-2 text-ink")}>Todos os serviços</Link>
+              <Link href={`${base}?aba=jornada`} scroll={false} className={cn("rounded-full px-3 py-1.5 text-footnote font-semibold", !serviceFilter ? "bg-primary text-white" : "bg-surface-2 text-ink")}>Todos os serviços</Link>
               {ref.services.filter((s) => evs.some((e) => e.service_id === s.id)).map((s) => (
-                <Link key={s.id} href={`${base}?aba=jornada&servico=${s.id}`} scroll={false} className={cn("rounded-full", serviceFilter === s.id && "ring-2 ring-ink")}>
+                <Link key={s.id} href={`${base}?aba=jornada&servico=${s.id}`} scroll={false} className={cn("rounded-full", serviceFilter === s.id && "ring-2 ring-primary")}>
                   <ServiceChip name={s.name} color={s.color} />
                 </Link>
               ))}

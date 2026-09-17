@@ -74,14 +74,14 @@ export function AlertsBoard({ items, counts, totalPending, filters, services }: 
       />
 
       <div className="scrollbar-none -mx-4 mb-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:flex-wrap sm:px-0">
-        <button onClick={() => go({ tipo: "todos" })} className={cn("flex shrink-0 items-center gap-2 rounded-full border-2 px-4 py-2 text-callout font-bold transition", filters.code === "todos" ? "border-ink bg-ink text-white" : "border-line bg-surface text-ink hover:border-line-strong")}>
+        <button onClick={() => go({ tipo: "todos" })} className={cn("flex shrink-0 items-center gap-2 rounded-full border-2 px-4 py-2 text-callout font-bold transition", filters.code === "todos" ? "border-primary bg-primary text-white" : "border-line bg-surface text-ink hover:border-line-strong")}>
           Todos <span className="tabular">{totalPending}</span>
         </button>
         {Object.entries(ALERT_CODE_LABEL).map(([code, label]) => {
           const m = META[code];
           const active = filters.code === code;
           return (
-            <button key={code} onClick={() => go({ tipo: code })} aria-pressed={active} className={cn("flex shrink-0 items-center gap-2 rounded-full border-2 py-1.5 pr-4 pl-1.5 text-callout font-semibold transition", active ? "border-ink bg-surface text-ink-strong" : "border-line bg-surface text-ink hover:border-line-strong")}>
+            <button key={code} onClick={() => go({ tipo: code })} aria-pressed={active} className={cn("flex shrink-0 items-center gap-2 rounded-full border-2 py-1.5 pr-4 pl-1.5 text-callout font-semibold transition", active ? "border-primary bg-primary-soft text-primary-ink" : "border-line bg-surface text-ink hover:border-line-strong")}>
               <IconBubble icon={m.icon} tone={m.tone} size="xs" className="rounded-full" />
               {label}
               <span className="rounded-full bg-surface-2 px-1.5 text-caption font-bold tabular">{counts[code] ?? 0}</span>

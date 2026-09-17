@@ -133,7 +133,7 @@ export function NewPatientForm({ initialName, initialBirth, clinical }: { initia
         <ol className="mt-3 grid grid-cols-3 gap-2">
           {STEPS.map((s, i) => (
             <li key={s.key} className={cn("flex items-center gap-2 text-footnote font-semibold", i <= step ? "text-ink-strong" : "text-ink-muted")} aria-current={i === step ? "step" : undefined}>
-              <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full", i < step ? "bg-mint text-ink-strong" : i === step ? "bg-ink text-white" : "bg-surface-2")}>
+              <span className={cn("flex size-7 shrink-0 items-center justify-center rounded-full", i < step ? "bg-mint text-ink-strong" : i === step ? "bg-primary text-white" : "bg-surface-2")}>
                 {i < step ? <Check className="size-4" strokeWidth={3} /> : <s.icon className="size-4" />}
               </span>
               <span className="truncate">{s.label}</span>

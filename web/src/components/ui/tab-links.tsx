@@ -21,7 +21,7 @@ export function TabLinks({ tabs, active, label }: { tabs: { href: string; key: s
               >
                 {t.label}
                 {t.count !== undefined && t.count > 0 && (
-                  <span className={cn("rounded-full px-1.5 text-caption tabular", on ? "bg-lilac-soft text-lilac-ink" : "bg-line text-ink-muted")}>{t.count}</span>
+                  <span className={cn("rounded-full px-1.5 text-caption tabular", on ? "bg-primary-soft text-primary-ink" : "bg-line text-ink-muted")}>{t.count}</span>
                 )}
               </Link>
             </li>

@@ -9,9 +9,8 @@ import { DropdownMenu } from "radix-ui";
 import { Bell, ChevronDown, LogOut, Menu, Search, UserRound, X } from "lucide-react";
 import { NAV, type NavItem } from "./nav";
 import { SearchCommand } from "./search-command";
-import { Logo, Blob } from "@/components/ui/brand";
+import { Logo } from "@/components/ui/brand";
 import { Avatar, Kbd } from "@/components/ui/primitives";
-import { TONE } from "@/components/ui/tone";
 import { can } from "@/lib/auth/permissions";
 import { signOut } from "@/lib/actions/auth";
 import { cn } from "@/lib/utils";
@@ -44,27 +43,20 @@ export function AppShell({ profile, counts, children }: { profile: Profile; coun
 
   return (
     <div className="relative min-h-dvh">
-      <a href="#conteudo" className="sr-only z-[70] rounded-md bg-ink px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
+      <a href="#conteudo" className="sr-only z-[70] rounded-md bg-primary px-4 py-2 text-white focus:not-sr-only focus:fixed focus:top-3 focus:left-3">
         Pular para o conteúdo
       </a>
 
-      {/* Ambientação orgânica discreta */}
-      <div aria-hidden className="pointer-events-none fixed inset-0 -z-0 overflow-hidden">
-        <Blob tone="rose" variant={2} className="-top-24 -left-24 size-72" opacity={0.28} />
-        <Blob tone="mint" variant={1} className="top-1/3 -right-28 size-80" opacity={0.2} />
-        <Blob tone="sun" variant={0} className="-bottom-32 left-1/4 size-80" opacity={0.18} />
-      </div>
 
       {/* Sidebar desktop */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-[264px] flex-col p-3 lg:flex" aria-label="Navegação principal">
-        <div className="glass flex h-full flex-col overflow-hidden rounded-[28px] border border-white/70 shadow-card">
+        <div className="flex h-full flex-col overflow-hidden rounded-[24px] border border-line bg-surface">
           <Link href="/inicio" className="px-5 pt-6 pb-5 [@media(max-height:700px)]:pt-4 [@media(max-height:700px)]:pb-3" aria-label="Cuidar+ início">
             <Logo />
           </Link>
           <SidebarNav items={items} counts={counts} isActive={isActive} />
-          <div className="relative mx-3 mb-3 overflow-hidden rounded-[20px] bg-lilac-soft/70 p-4 [@media(max-height:820px)]:hidden">
-            <Blob tone="lilac" variant={1} className="-right-6 -bottom-8 size-24" opacity={0.5} />
-            <p className="relative text-footnote font-semibold text-lilac-ink">Cada jornada importa.</p>
+          <div className="relative mx-3 mb-3 overflow-hidden rounded-[20px] bg-primary-soft p-4 [@media(max-height:820px)]:hidden">
+            <p className="relative text-footnote font-semibold text-primary-ink">Cada jornada importa.</p>
             <p className="relative text-caption text-ink-muted">Prefeitura Municipal de Crateús</p>
           </div>
         </div>
@@ -92,7 +84,7 @@ export function AppShell({ profile, counts, children }: { profile: Profile; coun
 
       <div className="relative lg:pl-[264px]">
         {/* Cabeçalho de vidro */}
-        <header className="glass sticky top-0 z-20 border-b border-line/60">
+        <header className="sticky top-0 z-20 border-b border-line bg-surface/90 backdrop-blur-md">
           <div className="mx-auto flex h-16 max-w-[1400px] items-center gap-3 px-4 sm:px-6 lg:h-20 lg:px-8">
             <button className="flex size-10 items-center justify-center rounded-full hover:bg-surface-2 lg:hidden" onClick={() => setDrawer(true)} aria-label="Abrir menu">
               <Menu className="size-6" />
@@ -104,7 +96,7 @@ export function AppShell({ profile, counts, children }: { profile: Profile; coun
             {canSearch ? (
               <button
                 onClick={() => setSearchOpen(true)}
-                className="glass group flex h-11 flex-1 items-center gap-3 rounded-full border border-line px-4 text-left text-callout text-ink-muted shadow-[0_1px_2px_rgb(16_24_40/0.04)] transition hover:border-line-strong sm:max-w-[520px] lg:bg-surface"
+                className="group flex h-11 flex-1 items-center gap-3 rounded-md border border-line bg-bg px-4 text-left text-callout text-ink-muted transition hover:border-line-strong sm:max-w-[520px]"
               >
                 <Search className="size-5 text-ink-muted" aria-hidden />
                 <span className="flex-1 truncate">
@@ -147,15 +139,15 @@ export function AppShell({ profile, counts, children }: { profile: Profile; coun
       </div>
 
       {/* Tab bar celular (Apple) */}
-      <nav className="glass fixed inset-x-0 bottom-0 z-30 border-t border-line/70 pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Navegação rápida">
+      <nav className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-surface pb-[env(safe-area-inset-bottom)] lg:hidden" aria-label="Navegação rápida">
         <ul className="mx-auto flex max-w-lg">
           {items.filter((i) => i.mobile).slice(0, 4).map((i) => {
             const active = isActive(i.href);
             return (
               <li key={i.href} className="flex-1">
-                <Link href={i.href} aria-current={active ? "page" : undefined} className={cn("flex h-16 flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-semibold", active ? "text-ink-strong" : "text-ink-muted")}>
-                  <span className={cn("flex h-7 w-12 items-center justify-center rounded-full transition", active && TONE[i.tone].soft)}>
-                    <i.icon className={cn("size-[22px]", active && TONE[i.tone].ink)} strokeWidth={active ? 2.5 : 2} aria-hidden />
+                <Link href={i.href} aria-current={active ? "page" : undefined} className={cn("flex h-16 flex-col items-center justify-center gap-0.5 text-[0.6875rem] font-semibold", active ? "text-primary" : "text-ink-muted")}>
+                  <span className={cn("flex h-7 w-12 items-center justify-center rounded-full transition", active && "bg-primary-soft")}>
+                    <i.icon className={cn("size-[22px]", active && "text-primary")} strokeWidth={active ? 2.5 : 2} aria-hidden />
                   </span>
                   {i.label.split(" ")[0]}
                 </Link>
@@ -189,19 +181,19 @@ function SidebarNav({ items, counts, isActive }: { items: NavItem[]; counts: She
                 href={i.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "relative flex h-12 items-center gap-3 rounded-[16px] px-3 text-callout font-semibold transition-colors",
-                  active ? "text-ink-strong" : "text-ink hover:bg-surface-2/80"
+                  "relative flex h-11 items-center gap-2 rounded-[12px] px-2 text-callout font-semibold transition-colors",
+                  active ? "text-primary" : "text-ink hover:bg-surface-2"
                 )}
               >
                 {active && (
-                  <motion.span layoutId="nav-active" className={cn("absolute inset-0 rounded-[16px]", TONE[i.tone].soft)} transition={{ type: "spring", stiffness: 500, damping: 40 }} />
+                  <motion.span layoutId="nav-active" className="absolute inset-0 rounded-[12px] bg-primary-soft" transition={{ type: "spring", stiffness: 500, damping: 40 }} />
                 )}
-                <span className={cn("relative flex size-8 items-center justify-center rounded-[10px] transition", active ? cn(TONE[i.tone].bg, "text-ink-strong") : "text-ink-muted")}>
+                <span className={cn("relative flex size-8 items-center justify-center rounded-[10px] transition", active ? "text-primary" : "text-ink-muted")}>
                   <i.icon className="size-[19px]" strokeWidth={2.3} aria-hidden />
                 </span>
                 <span className="relative flex-1 truncate">{i.label}</span>
                 {count > 0 && (
-                  <span className="relative flex h-6 min-w-6 items-center justify-center rounded-full bg-rose px-1.5 text-caption font-bold text-ink-strong tabular" aria-label={`${count} pendentes`}>
+                  <span className="relative flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-soft px-1.5 text-caption font-bold text-rose-ink tabular" aria-label={`${count} pendentes`}>
                     {count > 99 ? "99+" : count}
                   </span>
                 )}
@@ -217,7 +209,7 @@ function SidebarNav({ items, counts, isActive }: { items: NavItem[]; counts: She
 function UserMenu({ profile }: { profile: Profile }) {
   return (
     <DropdownMenu.Root>
-      <DropdownMenu.Trigger aria-label={`Menu de ${profile.full_name}`} className="glass flex h-12 items-center gap-2.5 rounded-full border border-line py-1 pr-3 pl-1 text-left hover:border-line-strong lg:bg-surface">
+      <DropdownMenu.Trigger aria-label={`Menu de ${profile.full_name}`} className="flex h-12 items-center gap-2.5 rounded-full border border-line bg-surface py-1 pr-3 pl-1 text-left hover:border-line-strong">
         <Avatar name={profile.full_name} />
         <span className="hidden leading-tight sm:block">
           <span className="block max-w-[160px] truncate text-callout font-bold text-ink-strong">{profile.full_name}</span>

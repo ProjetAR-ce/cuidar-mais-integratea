@@ -95,7 +95,7 @@ export default async function Inicio() {
   return (
     <div className="space-y-6">
       {/* Hero */}
-      <section className="relative overflow-hidden rounded-[32px] bg-[#fbf6ee] shadow-card animate-fade-up">
+      <section className="relative overflow-hidden rounded-[24px] border border-line bg-primary-soft animate-fade-up">
         <Blob tone="mint" variant={1} className="-top-10 right-[30%] size-48" opacity={0.35} />
         <Blob tone="lilac" variant={2} className="right-4 -bottom-16 size-56" opacity={0.35} />
         <Blob tone="peach" variant={0} className="-bottom-20 left-[40%] size-44" opacity={0.3} />
@@ -111,7 +111,7 @@ export default async function Inicio() {
             </span>
           </div>
           <div className="relative hidden h-full min-h-56 md:block">
-            <Image src="/brand/hero-family.jpg" alt="Ilustração de uma mãe, uma criança e uma profissional de saúde sorrindo juntas" fill priority sizes="(min-width: 768px) 40vw, 0px" className="object-contain object-bottom [mask-image:linear-gradient(to_right,transparent,black_18%,black_88%,transparent)]" />
+            <Image src="/brand/hero-family.jpg" alt="Ilustração de uma mãe, uma criança e uma profissional de saúde sorrindo juntas" fill priority sizes="(min-width: 768px) 40vw, 0px" className="object-contain object-bottom mix-blend-multiply [mask-image:linear-gradient(to_right,transparent,black_18%,black_88%,transparent)]" />
           </div>
         </div>
       </section>
@@ -130,7 +130,7 @@ export default async function Inicio() {
           <Card>
             <CardHeader title="Jornada do cuidado" icon={Route} tone="lilac" subtitle="Da entrada à continuidade, cada etapa gera um evento auditável." />
             <ol className="relative grid grid-cols-5 gap-1 px-4 pt-2 pb-6">
-              <div aria-hidden className="absolute top-8 right-[12%] left-[12%] h-1.5 rounded-full bg-gradient-to-r from-rose via-lilac to-sun opacity-60" />
+              <div aria-hidden className="absolute top-8 right-[12%] left-[12%] h-1 rounded-full bg-primary/20" />
               {journey.map((j) => {
                 const allowed = !j.perm || can(profile.role, j.perm);
                 const inner = (
@@ -288,7 +288,7 @@ export default async function Inicio() {
             </ul>
           </Card>
 
-          <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-r from-rose-soft via-lilac-soft to-mint-soft p-5">
+          <div className="relative overflow-hidden rounded-[24px] bg-primary-soft p-5">
             <Image src="/brand/symbol.png" alt="" width={72} height={72} className="absolute -right-2 -bottom-3 animate-float opacity-90" />
             <p className="relative max-w-[70%] text-headline font-bold text-ink-strong">Juntos construímos uma rede de cuidado mais forte.</p>
             {s.waiting_total > 0 && <ProgressBar value={s.in_care_30d} max={s.in_care_30d + s.waiting_total} tone="mint" className="relative mt-3 max-w-[70%]" label="Pessoas atendidas frente à demanda" />}

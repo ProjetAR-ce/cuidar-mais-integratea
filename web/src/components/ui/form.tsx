@@ -3,7 +3,7 @@ import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const fieldBase =
-  "w-full rounded-md border-2 border-line bg-surface px-4 text-body text-ink-strong placeholder:text-ink-faint transition-colors hover:border-line-strong focus:border-lilac-edge focus:outline-none focus:ring-4 focus:ring-lilac/25 disabled:bg-surface-2 disabled:text-ink-muted aria-[invalid=true]:border-rose-edge aria-[invalid=true]:focus:ring-rose/25";
+  "w-full rounded-md border border-line-strong bg-surface px-4 text-body text-ink-strong placeholder:text-ink-faint shadow-[0_1px_2px_rgb(16_24_40/0.05)] transition-colors hover:border-ink-faint focus:border-primary focus:outline-none focus:ring-4 focus:ring-primary/15 disabled:bg-surface-2 disabled:text-ink-muted aria-[invalid=true]:border-rose-edge aria-[invalid=true]:focus:ring-rose/25";
 
 export function Input({ className, ...props }: React.ComponentProps<"input">) {
   return <input className={cn(fieldBase, "h-12", className)} {...props} />;
@@ -65,9 +65,8 @@ export function ChoiceCards<T extends string>({
           <label
             key={o.value}
             className={cn(
-              "relative flex cursor-pointer flex-col gap-1 rounded-lg border-2 bg-surface p-4 transition-all",
-              "shadow-[0_4px_0_var(--color-line)] active:translate-y-1 active:shadow-none",
-              checked ? "border-lilac-edge bg-lilac-soft shadow-[0_4px_0_var(--color-lilac-edge)]" : "border-line hover:border-line-strong"
+              "relative flex cursor-pointer flex-col gap-1 rounded-[16px] border bg-surface p-4 transition-all active:scale-[0.99]",
+              checked ? "border-primary bg-primary-soft ring-1 ring-primary" : "border-line hover:border-line-strong"
             )}
           >
             <input type="radio" name={name} value={o.value} checked={checked} onChange={() => onChange(o.value)} className="sr-only" />
