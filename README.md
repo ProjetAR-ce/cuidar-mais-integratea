@@ -4,6 +4,8 @@
 
 Solução desenvolvida no **Hackathon BNB – Desafio Prefeitura de Crateús** (Fórum de Inovação e Tecnologia · UFC Campus Crateús · 16 e 17/09/2026), para o tema proposto pela Secretaria Municipal de Saúde e pela SEPLATI.
 
+**🌐 Sistema em produção: [cuidarmais.projetarsolucoes.com](https://cuidarmais.projetarsolucoes.com)**
+
 > Todos os dados deste repositório e do ambiente de demonstração são **fictícios** (RN-014).
 
 ---
@@ -19,7 +21,7 @@ Uma plataforma de **coordenação do cuidado** (não é prontuário hospitalar) 
 | Parte | Pasta | Para quem |
 |---|---|---|
 | **Sistema web Cuidar+** (Next.js) | [`web/`](web) | recepção, profissionais, coordenação, gestão e administração dos 5 serviços |
-| **Aplicativo mobile** (Flutter, repositório da equipe) | [JoaoAugusto1374/IntegraTEA](https://github.com/JoaoAugusto1374/IntegraTEA) | famílias e responsáveis |
+| **Aplicativo mobile** (Flutter, repositório da equipe) | [JoaoAugusto1374/IntegraTEA](https://github.com/JoaoAugusto1374/IntegraTEA) | famílias e responsáveis: jornada, fila, consultas, plano, encaminhamentos, avisos e notícias |
 | **Assistente de WhatsApp** (Python · AWS Strands · Bedrock) | [`bot/`](bot) | população em geral |
 | **Banco, regras e segurança** (Supabase/PostgreSQL) | [`supabase/`](supabase) | tudo acima |
 
@@ -107,6 +109,7 @@ No SQL Editor do projeto, rode **na ordem**:
 1. `supabase/migrations/20260916_001_cuidar_mais_web.sql`
 2. `supabase/migrations/20260916_002_ajustes_fase3.sql`
 3. `supabase/migrations/20260917_003_edital_api_publica.sql`
+4. `supabase/migrations/20260917_004_app_familias.sql`
 
 Todas são idempotentes. Veja [supabase/README.md](supabase/README.md).
 
@@ -185,7 +188,12 @@ Veja [bot/README.md](bot/README.md) (deploy com AWS SAM e configuração da Meta
 
 ## Equipe
 
-Equipe participante do Hackathon BNB – Desafio Prefeitura de Crateús 2026. *(Preencher nomes e funções.)*
+Hackathon BNB – Desafio Prefeitura de Crateús 2026:
+
+- **Gabriel de Sena Guedes**
+- **Mariana Lemos Fernandes Oliveira**
+- **João Augusto Pereira França**
+- **Herisson Hyan Cavalcante Oliveira**
 
 ## Aviso
 

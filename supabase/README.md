@@ -11,6 +11,7 @@ Supabase → SQL Editor → colar o arquivo → Run.
 | `20260916_001_cuidar_mais_web.sql` | Novas colunas e tabelas (especialidades, capacidade, plano compartilhado, duplicidades, parâmetros, versões, formulários); funções de perfil; **RLS**; triggers de normalização, bloqueio de exclusão, versões, **auditoria**, **linha do tempo** e **alertas AL-01 a AL-06**; views `v_queue_ranked` e `v_agenda`; RPCs de negócio; indicadores; dados de referência |
 | `20260916_002_ajustes_fase3.sql` | Indicadores no fuso de Crateús; nomes dos serviços no fluxo de encaminhamentos; versão do atendimento só em correções |
 | `20260917_003_edital_api_publica.sql` | Campos das fichas NASF/NAPE; informação clínica separada; `create_patient` atualizado; base pública do WhatsApp; visão agregada para a API |
+| `20260917_004_app_familias.sql` | App das famílias: agenda visível ao responsável, **notificações automáticas** (consulta agendada/cancelada, encaminhamento, entrada na fila) e avisos/notícias |
 
 ## Dados de demonstração
 

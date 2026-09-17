@@ -78,6 +78,7 @@ Legenda: ✅ atendido · 🟡 parcial / depende de validação da Prefeitura · 
 - [x] Roteiro do pitch de 7 minutos (`docs/PITCH.md`)
 - [x] Testes automatizados (E2E, acessibilidade, bot)
 - [x] Nenhum segredo versionado (`.env*` ignorados; só `.env.example`)
-- [ ] Preencher nomes da equipe no README
+- [x] Nomes da equipe no README
+- [x] Sistema publicado em https://cuidarmais.projetarsolucoes.com
 - [ ] Link do vídeo/demonstração, se a organização pedir
 - [ ] Trocar as chaves do Supabase compartilhadas em conversa antes de publicar o repositório
